@@ -17,40 +17,40 @@
 #define FINGERPRINT_PACKETRECIEVEERR 0x01 //!< Error when receiving data package
 #define FINGERPRINT_NOFINGER 0x02         //!< No finger on the sensor
 #define FINGERPRINT_IMAGEFAIL 0x03        //!< Failed to enroll the finger
-#define FINGERPRINT_IMAGEMESS                                                  \
+#define FINGERPRINT_IMAGEMESS \
   0x06 //!< Failed to generate character file due to overly disorderly
        //!< fingerprint image
-#define FINGERPRINT_FEATUREFAIL                                                \
-  0x07 //!< Failed to generate character file due to the lack of character point
-       //!< or small fingerprint image
+#define FINGERPRINT_FEATUREFAIL \
+  0x07                            //!< Failed to generate character file due to the lack of character point
+                                  //!< or small fingerprint image
 #define FINGERPRINT_NOMATCH 0x08  //!< Finger doesn't match
 #define FINGERPRINT_NOTFOUND 0x09 //!< Failed to find matching finger
-#define FINGERPRINT_ENROLLMISMATCH                                             \
+#define FINGERPRINT_ENROLLMISMATCH \
   0x0A //!< Failed to combine the character files
-#define FINGERPRINT_BADLOCATION                                                \
+#define FINGERPRINT_BADLOCATION \
   0x0B //!< Addressed PageID is beyond the finger library
-#define FINGERPRINT_DBRANGEFAIL                                                \
-  0x0C //!< Error when reading template from library or invalid template
+#define FINGERPRINT_DBRANGEFAIL \
+  0x0C                                     //!< Error when reading template from library or invalid template
 #define FINGERPRINT_UPLOADFEATUREFAIL 0x0D //!< Error when uploading template
-#define FINGERPRINT_PACKETRESPONSEFAIL                                         \
-  0x0E //!< Module failed to receive the following data packages
+#define FINGERPRINT_PACKETRESPONSEFAIL \
+  0x0E                               //!< Module failed to receive the following data packages
 #define FINGERPRINT_UPLOADFAIL 0x0F  //!< Error when uploading image
 #define FINGERPRINT_DELETEFAIL 0x10  //!< Failed to delete the template
 #define FINGERPRINT_DBCLEARFAIL 0x11 //!< Failed to clear finger library
-#define FINGERPRINT_PASSFAIL                                                   \
+#define FINGERPRINT_PASSFAIL \
   0x13 //!< Find whether the fingerprint passed or failed
-#define FINGERPRINT_INVALIDIMAGE                                               \
-  0x15 //!< Failed to generate image because of lac of valid primary image
+#define FINGERPRINT_INVALIDIMAGE \
+  0x15                              //!< Failed to generate image because of lac of valid primary image
 #define FINGERPRINT_FLASHERR 0x18   //!< Error when writing flash
 #define FINGERPRINT_INVALIDREG 0x1A //!< Invalid register number
 #define FINGERPRINT_ADDRCODE 0x20   //!< Address code
 #define FINGERPRINT_PASSVERIFY 0x21 //!< Verify the fingerprint passed
-#define FINGERPRINT_STARTCODE                                                  \
+#define FINGERPRINT_STARTCODE \
   0xEF01 //!< Fixed falue of EF01H; High byte transferred first
 
 #define FINGERPRINT_COMMANDPACKET 0x1 //!< Command packet
-#define FINGERPRINT_DATAPACKET                                                 \
-  0x2 //!< Data packet, must follow command packet or acknowledge packet
+#define FINGERPRINT_DATAPACKET \
+  0x2                                 //!< Data packet, must follow command packet or acknowledge packet
 #define FINGERPRINT_ACKPACKET 0x7     //!< Acknowledge packet
 #define FINGERPRINT_ENDDATAPACKET 0x8 //!< End of data packet
 
@@ -60,8 +60,8 @@
 #define FINGERPRINT_GETIMAGE 0x01 //!< Collect finger image
 #define FINGERPRINT_IMAGE2TZ 0x02 //!< Generate character file from image
 #define FINGERPRINT_SEARCH 0x04   //!< Search for fingerprint in slot
-#define FINGERPRINT_REGMODEL                                                   \
-  0x05 //!< Combine character files and generate template
+#define FINGERPRINT_REGMODEL \
+  0x05                                  //!< Combine character files and generate template
 #define FINGERPRINT_STORE 0x06          //!< Store template
 #define FINGERPRINT_LOAD 0x07           //!< Read/load template
 #define FINGERPRINT_UPLOAD 0x08         //!< Upload template
@@ -70,9 +70,9 @@
 #define FINGERPRINT_READSYSPARAM 0x0F   //!< Read system parameters
 #define FINGERPRINT_SETPASSWORD 0x12    //!< Sets passwords
 #define FINGERPRINT_VERIFYPASSWORD 0x13 //!< Verifies the password
-#define FINGERPRINT_HISPEEDSEARCH                                              \
-  0x1B //!< Asks the sensor to search for a matching fingerprint template to the
-       //!< last model generated
+#define FINGERPRINT_HISPEEDSEARCH \
+  0x1B                                 //!< Asks the sensor to search for a matching fingerprint template to the
+                                       //!< last model generated
 #define FINGERPRINT_TEMPLATECOUNT 0x1D //!< Read finger template numbers
 #define FINGERPRINT_AURALEDCONFIG 0x35 //!< Aura LED control
 #define FINGERPRINT_LEDON 0x50         //!< Turn on the onboard LED
@@ -121,12 +121,18 @@
 #define FINGERPRINT_PACKET_SIZE_128 0X2 //!< Packet size is 128 Byte
 #define FINGERPRINT_PACKET_SIZE_256 0X3 //!< Packet size is 256 Byte
 
-//#define FINGERPRINT_DEBUG
+#define FINGERPRINT_SETADDRESS 0x15 //!< Sets address
+#define FINGERPRINT_GET_RANDOM 0x14
+#define FINGERPRINT_WRITE_NOTE 0x18 //!< Writes note
+#define FINGERPRINT_READ_NOTE 0x19  //!< Reads note
+
+// #define FINGERPRINT_DEBUG
 
 #define DEFAULTTIMEOUT 1000 //!< UART reading timeout in milliseconds
 
 ///! Helper class to craft UART packets
-struct Adafruit_Fingerprint_Packet {
+struct Adafruit_Fingerprint_Packet
+{
 
   /**************************************************************************/
   /*!
@@ -138,7 +144,8 @@ struct Adafruit_Fingerprint_Packet {
   */
   /**************************************************************************/
 
-  Adafruit_Fingerprint_Packet(uint8_t type, uint16_t length, uint8_t *data) {
+  Adafruit_Fingerprint_Packet(uint8_t type, uint16_t length, uint8_t *data)
+  {
     this->start_code = FINGERPRINT_STARTCODE;
     this->type = type;
     this->length = length;
@@ -159,7 +166,8 @@ struct Adafruit_Fingerprint_Packet {
 };
 
 ///! Helper class to communicate with and keep state for fingerprint sensors
-class Adafruit_Fingerprint {
+class Adafruit_Fingerprint
+{
 public:
 #if defined(__AVR__) || defined(ESP8266) || defined(FREEDOM_E300_HIFIVE1)
   Adafruit_Fingerprint(SoftwareSerial *ss, uint32_t password = 0x0);
@@ -197,6 +205,10 @@ public:
   uint8_t getStructuredPacket(Adafruit_Fingerprint_Packet *p,
                               uint16_t timeout = DEFAULTTIMEOUT);
 
+  uint8_t setAddress(uint32_t password);
+  uint8_t writeNotepad(uint8_t page, uint8_t *indata, uint8_t size);
+  uint8_t readNotepad(uint8_t page, uint8_t *indata, uint8_t size);
+
   /// The matching location that is set by fingerFastSearch()
   uint16_t fingerID;
   /// The confidence of the fingerFastSearch() match, higher numbers are more
@@ -205,9 +217,9 @@ public:
   /// The number of stored templates in the sensor, set by getTemplateCount()
   uint16_t templateCount;
 
-  uint16_t status_reg = 0x0; ///< The status register (set by getParameters)
-  uint16_t system_id = 0x0;  ///< The system identifier (set by getParameters)
-  uint16_t capacity = 64; ///< The fingerprint capacity (set by getParameters)
+  uint16_t status_reg = 0x0;   ///< The status register (set by getParameters)
+  uint16_t system_id = 0x0;    ///< The system identifier (set by getParameters)
+  uint16_t capacity = 64;      ///< The fingerprint capacity (set by getParameters)
   uint16_t security_level = 0; ///< The security level (set by getParameters)
   uint32_t device_addr =
       0xFFFFFFFF;             ///< The device address (set by getParameters)

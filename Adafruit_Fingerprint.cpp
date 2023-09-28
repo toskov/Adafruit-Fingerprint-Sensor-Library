@@ -28,26 +28,26 @@
 
 #include "Adafruit_Fingerprint.h"
 
-//#define FINGERPRINT_DEBUG
+// #define FINGERPRINT_DEBUG
 
 /*!
  * @brief Gets the command packet
  */
-#define GET_CMD_PACKET(...)                                                    \
-  uint8_t data[] = {__VA_ARGS__};                                              \
-  Adafruit_Fingerprint_Packet packet(FINGERPRINT_COMMANDPACKET, sizeof(data),  \
-                                     data);                                    \
-  writeStructuredPacket(packet);                                               \
-  if (getStructuredPacket(&packet) != FINGERPRINT_OK)                          \
-    return FINGERPRINT_PACKETRECIEVEERR;                                       \
-  if (packet.type != FINGERPRINT_ACKPACKET)                                    \
+#define GET_CMD_PACKET(...)                                                   \
+  uint8_t data[] = {__VA_ARGS__};                                             \
+  Adafruit_Fingerprint_Packet packet(FINGERPRINT_COMMANDPACKET, sizeof(data), \
+                                     data);                                   \
+  writeStructuredPacket(packet);                                              \
+  if (getStructuredPacket(&packet) != FINGERPRINT_OK)                         \
+    return FINGERPRINT_PACKETRECIEVEERR;                                      \
+  if (packet.type != FINGERPRINT_ACKPACKET)                                   \
     return FINGERPRINT_PACKETRECIEVEERR;
 
 /*!
  * @brief Sends the command packet
  */
-#define SEND_CMD_PACKET(...)                                                   \
-  GET_CMD_PACKET(__VA_ARGS__);                                                 \
+#define SEND_CMD_PACKET(...)   \
+  GET_CMD_PACKET(__VA_ARGS__); \
   return packet.data[0];
 
 /***************************************************************************
@@ -63,7 +63,8 @@
 */
 /**************************************************************************/
 Adafruit_Fingerprint::Adafruit_Fingerprint(SoftwareSerial *ss,
-                                           uint32_t password) {
+                                           uint32_t password)
+{
   thePassword = password;
   theAddress = 0xFFFFFFFF;
 
@@ -82,7 +83,8 @@ Adafruit_Fingerprint::Adafruit_Fingerprint(SoftwareSerial *ss,
 */
 /**************************************************************************/
 Adafruit_Fingerprint::Adafruit_Fingerprint(HardwareSerial *hs,
-                                           uint32_t password) {
+                                           uint32_t password)
+{
   thePassword = password;
   theAddress = 0xFFFFFFFF;
 
@@ -102,7 +104,8 @@ Adafruit_Fingerprint::Adafruit_Fingerprint(HardwareSerial *hs,
 */
 /**************************************************************************/
 
-Adafruit_Fingerprint::Adafruit_Fingerprint(Stream *serial, uint32_t password) {
+Adafruit_Fingerprint::Adafruit_Fingerprint(Stream *serial, uint32_t password)
+{
 
   thePassword = password;
   theAddress = 0xFFFFFFFF;
@@ -120,7 +123,8 @@ Adafruit_Fingerprint::Adafruit_Fingerprint(Stream *serial, uint32_t password) {
     @param  baudrate Sensor's UART baud rate (usually 57600, 9600 or 115200)
 */
 /**************************************************************************/
-void Adafruit_Fingerprint::begin(uint32_t baudrate) {
+void Adafruit_Fingerprint::begin(uint32_t baudrate)
+{
   delay(1000); // one second delay to let the sensor 'boot up'
 
   if (hwSerial)
@@ -138,11 +142,13 @@ void Adafruit_Fingerprint::begin(uint32_t baudrate) {
     @returns True if password is correct
 */
 /**************************************************************************/
-boolean Adafruit_Fingerprint::verifyPassword(void) {
+boolean Adafruit_Fingerprint::verifyPassword(void)
+{
   return checkPassword() == FINGERPRINT_OK;
 }
 
-uint8_t Adafruit_Fingerprint::checkPassword(void) {
+uint8_t Adafruit_Fingerprint::checkPassword(void)
+{
   GET_CMD_PACKET(FINGERPRINT_VERIFYPASSWORD, (uint8_t)(thePassword >> 24),
                  (uint8_t)(thePassword >> 16), (uint8_t)(thePassword >> 8),
                  (uint8_t)(thePassword & 0xFF));
@@ -160,7 +166,8 @@ uint8_t Adafruit_Fingerprint::checkPassword(void) {
     @returns True if password is correct
 */
 /**************************************************************************/
-uint8_t Adafruit_Fingerprint::getParameters(void) {
+uint8_t Adafruit_Fingerprint::getParameters(void)
+{
   GET_CMD_PACKET(FINGERPRINT_READSYSPARAM);
 
   status_reg = ((uint16_t)packet.data[1] << 8) | packet.data[2];
@@ -171,13 +178,20 @@ uint8_t Adafruit_Fingerprint::getParameters(void) {
                 ((uint32_t)packet.data[10] << 16) |
                 ((uint32_t)packet.data[11] << 8) | (uint32_t)packet.data[12];
   packet_len = ((uint16_t)packet.data[13] << 8) | packet.data[14];
-  if (packet_len == 0) {
+  if (packet_len == 0)
+  {
     packet_len = 32;
-  } else if (packet_len == 1) {
+  }
+  else if (packet_len == 1)
+  {
     packet_len = 64;
-  } else if (packet_len == 2) {
+  }
+  else if (packet_len == 2)
+  {
     packet_len = 128;
-  } else if (packet_len == 3) {
+  }
+  else if (packet_len == 3)
+  {
     packet_len = 256;
   }
   baud_rate = (((uint16_t)packet.data[15] << 8) | packet.data[16]) * 9600;
@@ -194,7 +208,8 @@ uint8_t Adafruit_Fingerprint::getParameters(void) {
     @returns <code>FINGERPRINT_IMAGEFAIL</code> on imaging error
 */
 /**************************************************************************/
-uint8_t Adafruit_Fingerprint::getImage(void) {
+uint8_t Adafruit_Fingerprint::getImage(void)
+{
   SEND_CMD_PACKET(FINGERPRINT_GETIMAGE);
 }
 
@@ -211,7 +226,8 @@ uint8_t Adafruit_Fingerprint::getImage(void) {
     @returns <code>FINGERPRINT_INVALIDIMAGE</code> on failure to identify
    fingerprint features
 */
-uint8_t Adafruit_Fingerprint::image2Tz(uint8_t slot) {
+uint8_t Adafruit_Fingerprint::image2Tz(uint8_t slot)
+{
   SEND_CMD_PACKET(FINGERPRINT_IMAGE2TZ, slot);
 }
 
@@ -223,7 +239,8 @@ uint8_t Adafruit_Fingerprint::image2Tz(uint8_t slot) {
     @returns <code>FINGERPRINT_PACKETRECIEVEERR</code> on communication error
     @returns <code>FINGERPRINT_ENROLLMISMATCH</code> on mismatch of fingerprints
 */
-uint8_t Adafruit_Fingerprint::createModel(void) {
+uint8_t Adafruit_Fingerprint::createModel(void)
+{
   SEND_CMD_PACKET(FINGERPRINT_REGMODEL);
 }
 
@@ -237,7 +254,8 @@ uint8_t Adafruit_Fingerprint::createModel(void) {
    to flash memory
     @returns <code>FINGERPRINT_PACKETRECIEVEERR</code> on communication error
 */
-uint8_t Adafruit_Fingerprint::storeModel(uint16_t location) {
+uint8_t Adafruit_Fingerprint::storeModel(uint16_t location)
+{
   SEND_CMD_PACKET(FINGERPRINT_STORE, 0x01, (uint8_t)(location >> 8),
                   (uint8_t)(location & 0xFF));
 }
@@ -250,7 +268,8 @@ uint8_t Adafruit_Fingerprint::storeModel(uint16_t location) {
     @returns <code>FINGERPRINT_BADLOCATION</code> if the location is invalid
     @returns <code>FINGERPRINT_PACKETRECIEVEERR</code> on communication error
 */
-uint8_t Adafruit_Fingerprint::loadModel(uint16_t location) {
+uint8_t Adafruit_Fingerprint::loadModel(uint16_t location)
+{
   SEND_CMD_PACKET(FINGERPRINT_LOAD, 0x01, (uint8_t)(location >> 8),
                   (uint8_t)(location & 0xFF));
 }
@@ -262,7 +281,8 @@ uint8_t Adafruit_Fingerprint::loadModel(uint16_t location) {
     @returns <code>FINGERPRINT_OK</code> on success
     @returns <code>FINGERPRINT_PACKETRECIEVEERR</code> on communication error
 */
-uint8_t Adafruit_Fingerprint::getModel(void) {
+uint8_t Adafruit_Fingerprint::getModel(void)
+{
   SEND_CMD_PACKET(FINGERPRINT_UPLOAD, 0x01);
 }
 
@@ -276,7 +296,8 @@ uint8_t Adafruit_Fingerprint::getModel(void) {
    to flash memory
     @returns <code>FINGERPRINT_PACKETRECIEVEERR</code> on communication error
 */
-uint8_t Adafruit_Fingerprint::deleteModel(uint16_t location) {
+uint8_t Adafruit_Fingerprint::deleteModel(uint16_t location)
+{
   SEND_CMD_PACKET(FINGERPRINT_DELETE, (uint8_t)(location >> 8),
                   (uint8_t)(location & 0xFF), 0x00, 0x01);
 }
@@ -290,7 +311,8 @@ uint8_t Adafruit_Fingerprint::deleteModel(uint16_t location) {
    to flash memory
     @returns <code>FINGERPRINT_PACKETRECIEVEERR</code> on communication error
 */
-uint8_t Adafruit_Fingerprint::emptyDatabase(void) {
+uint8_t Adafruit_Fingerprint::emptyDatabase(void)
+{
   SEND_CMD_PACKET(FINGERPRINT_EMPTY);
 }
 
@@ -304,7 +326,8 @@ uint8_t Adafruit_Fingerprint::emptyDatabase(void) {
     @returns <code>FINGERPRINT_PACKETRECIEVEERR</code> on communication error
 */
 /**************************************************************************/
-uint8_t Adafruit_Fingerprint::fingerFastSearch(void) {
+uint8_t Adafruit_Fingerprint::fingerFastSearch(void)
+{
   // high speed search of slot #1 starting at page 0x0000 and page #0x00A3
   GET_CMD_PACKET(FINGERPRINT_HISPEEDSEARCH, 0x01, 0x00, 0x00, 0x00, 0xA3);
   fingerID = 0xFFFF;
@@ -328,10 +351,14 @@ uint8_t Adafruit_Fingerprint::fingerFastSearch(void) {
     @returns <code>FINGERPRINT_OK</code> on success
 */
 /**************************************************************************/
-uint8_t Adafruit_Fingerprint::LEDcontrol(bool on) {
-  if (on) {
+uint8_t Adafruit_Fingerprint::LEDcontrol(bool on)
+{
+  if (on)
+  {
     SEND_CMD_PACKET(FINGERPRINT_LEDON);
-  } else {
+  }
+  else
+  {
     SEND_CMD_PACKET(FINGERPRINT_LEDOFF);
   }
 }
@@ -350,7 +377,8 @@ uint8_t Adafruit_Fingerprint::LEDcontrol(bool on) {
 */
 /**************************************************************************/
 uint8_t Adafruit_Fingerprint::LEDcontrol(uint8_t control, uint8_t speed,
-                                         uint8_t coloridx, uint8_t count) {
+                                         uint8_t coloridx, uint8_t count)
+{
   SEND_CMD_PACKET(FINGERPRINT_AURALEDCONFIG, control, speed, coloridx, count);
 }
 
@@ -365,7 +393,8 @@ uint8_t Adafruit_Fingerprint::LEDcontrol(uint8_t control, uint8_t speed,
     @returns <code>FINGERPRINT_PACKETRECIEVEERR</code> on communication error
 */
 /**************************************************************************/
-uint8_t Adafruit_Fingerprint::fingerSearch(uint8_t slot) {
+uint8_t Adafruit_Fingerprint::fingerSearch(uint8_t slot)
+{
   // search of slot starting thru the capacity
   GET_CMD_PACKET(FINGERPRINT_SEARCH, slot, 0x00, 0x00, (uint8_t)(capacity >> 8),
                  (uint8_t)(capacity & 0xFF));
@@ -392,7 +421,8 @@ uint8_t Adafruit_Fingerprint::fingerSearch(uint8_t slot) {
     @returns <code>FINGERPRINT_PACKETRECIEVEERR</code> on communication error
 */
 /**************************************************************************/
-uint8_t Adafruit_Fingerprint::getTemplateCount(void) {
+uint8_t Adafruit_Fingerprint::getTemplateCount(void)
+{
   GET_CMD_PACKET(FINGERPRINT_TEMPLATECOUNT);
 
   templateCount = packet.data[1];
@@ -411,7 +441,8 @@ uint8_t Adafruit_Fingerprint::getTemplateCount(void) {
     @returns <code>FINGERPRINT_PACKETRECIEVEERR</code> on communication error
 */
 /**************************************************************************/
-uint8_t Adafruit_Fingerprint::setPassword(uint32_t password) {
+uint8_t Adafruit_Fingerprint::setPassword(uint32_t password)
+{
   SEND_CMD_PACKET(FINGERPRINT_SETPASSWORD, (uint8_t)(password >> 24),
                   (uint8_t)(password >> 16), (uint8_t)(password >> 8),
                   (uint8_t)(password & 0xFF));
@@ -427,7 +458,8 @@ uint8_t Adafruit_Fingerprint::setPassword(uint32_t password) {
     @returns <code>FINGERPRINT_ADDRESS_ERROR</code> on register address error
 */
 /**************************************************************************/
-uint8_t Adafruit_Fingerprint::writeRegister(uint8_t regAdd, uint8_t value) {
+uint8_t Adafruit_Fingerprint::writeRegister(uint8_t regAdd, uint8_t value)
+{
 
   SEND_CMD_PACKET(FINGERPRINT_WRITE_REG, regAdd, value);
 }
@@ -440,7 +472,8 @@ uint8_t Adafruit_Fingerprint::writeRegister(uint8_t regAdd, uint8_t value) {
     @returns <code>FINGERPRINT_PACKETRECIEVEERR</code> on communication error
 */
 /**************************************************************************/
-uint8_t Adafruit_Fingerprint::setBaudRate(uint8_t baudrate) {
+uint8_t Adafruit_Fingerprint::setBaudRate(uint8_t baudrate)
+{
 
   return (writeRegister(FINGERPRINT_BAUD_REG_ADDR, baudrate));
 }
@@ -453,7 +486,8 @@ uint8_t Adafruit_Fingerprint::setBaudRate(uint8_t baudrate) {
     @returns <code>FINGERPRINT_PACKETRECIEVEERR</code> on communication error
 */
 /**************************************************************************/
-uint8_t Adafruit_Fingerprint::setSecurityLevel(uint8_t level) {
+uint8_t Adafruit_Fingerprint::setSecurityLevel(uint8_t level)
+{
 
   return (writeRegister(FINGERPRINT_SECURITY_REG_ADDR, level));
 }
@@ -466,7 +500,8 @@ uint8_t Adafruit_Fingerprint::setSecurityLevel(uint8_t level) {
     @returns <code>FINGERPRINT_PACKETRECIEVEERR</code> on communication error
 */
 /**************************************************************************/
-uint8_t Adafruit_Fingerprint::setPacketSize(uint8_t size) {
+uint8_t Adafruit_Fingerprint::setPacketSize(uint8_t size)
+{
 
   return (writeRegister(FINGERPRINT_PACKET_REG_ADDR, size));
 }
@@ -479,7 +514,8 @@ uint8_t Adafruit_Fingerprint::setPacketSize(uint8_t size) {
 /**************************************************************************/
 
 void Adafruit_Fingerprint::writeStructuredPacket(
-    const Adafruit_Fingerprint_Packet &packet) {
+    const Adafruit_Fingerprint_Packet &packet)
+{
 
   mySerial->write((uint8_t)(packet.start_code >> 8));
   mySerial->write((uint8_t)(packet.start_code & 0xFF));
@@ -515,7 +551,8 @@ void Adafruit_Fingerprint::writeStructuredPacket(
 #endif
 
   uint16_t sum = ((wire_length) >> 8) + ((wire_length)&0xFF) + packet.type;
-  for (uint8_t i = 0; i < packet.length; i++) {
+  for (uint8_t i = 0; i < packet.length; i++)
+  {
     mySerial->write(packet.data[i]);
     sum += packet.data[i];
 #ifdef FINGERPRINT_DEBUG
@@ -550,7 +587,8 @@ void Adafruit_Fingerprint::writeStructuredPacket(
 /**************************************************************************/
 uint8_t
 Adafruit_Fingerprint::getStructuredPacket(Adafruit_Fingerprint_Packet *packet,
-                                          uint16_t timeout) {
+                                          uint16_t timeout)
+{
   uint8_t byte;
   uint16_t idx = 0, timer = 0;
 
@@ -558,11 +596,14 @@ Adafruit_Fingerprint::getStructuredPacket(Adafruit_Fingerprint_Packet *packet,
   Serial.print("<- ");
 #endif
 
-  while (true) {
-    while (!mySerial->available()) {
+  while (true)
+  {
+    while (!mySerial->available())
+    {
       delay(1);
       timer++;
-      if (timer >= timeout) {
+      if (timer >= timeout)
+      {
 #ifdef FINGERPRINT_DEBUG
         Serial.println("Timed out");
 #endif
@@ -575,7 +616,8 @@ Adafruit_Fingerprint::getStructuredPacket(Adafruit_Fingerprint_Packet *packet,
     Serial.print(byte, HEX);
     Serial.print(", ");
 #endif
-    switch (idx) {
+    switch (idx)
+    {
     case 0:
       if (byte != (FINGERPRINT_STARTCODE >> 8))
         continue;
@@ -603,7 +645,8 @@ Adafruit_Fingerprint::getStructuredPacket(Adafruit_Fingerprint_Packet *packet,
       break;
     default:
       packet->data[idx - 9] = byte;
-      if ((idx - 8) == packet->length) {
+      if ((idx - 8) == packet->length)
+      {
 #ifdef FINGERPRINT_DEBUG
         Serial.println(" OK ");
 #endif
@@ -612,10 +655,61 @@ Adafruit_Fingerprint::getStructuredPacket(Adafruit_Fingerprint_Packet *packet,
       break;
     }
     idx++;
-    if ((idx + 9) >= sizeof(packet->data)) {
+    if ((idx + 9) >= sizeof(packet->data))
+    {
       return FINGERPRINT_BADPACKET;
     }
   }
   // Shouldn't get here so...
   return FINGERPRINT_BADPACKET;
+}
+
+/**************************************************************************/
+/*!
+    @brief   Set the address on the sensor (future communication will require
+   new address !!!)
+    @param   address 32-bit address
+    @returns <code>FINGERPRINT_OK</code> on success
+    @returns <code>FINGERPRINT_PACKETRECIEVEERR</code> on communication error
+*/
+/**************************************************************************/
+uint8_t Adafruit_Fingerprint::setAddress(uint32_t address)
+{
+  SEND_CMD_PACKET(FINGERPRINT_SETADDRESS, (uint8_t)(address >> 24),
+                  (uint8_t)(address >> 16), (uint8_t)(address >> 8),
+                  (uint8_t)(address & 0xFF));
+  return FINGERPRINT_OK;
+}
+
+
+// 18H WriteNotepad to write notepad
+/**
+ * @brief Write notepad - 32 bytes in given page 0- to 
+ * 
+ * @param page 
+ * @param indata 
+ * @param size 
+ * @return uint8_t 
+ */
+uint8_t Adafruit_Fingerprint::writeNotepad(uint8_t page, uint8_t *indata, uint8_t size)
+{
+  // uint8_t data[sizeof(indata)+2];
+  uint8_t data[size + 2];
+  data[0] = FINGERPRINT_WRITE_NOTE;
+  data[1] = page;
+  memcpy(data + 2, indata, size);
+  Adafruit_Fingerprint_Packet packet(FINGERPRINT_COMMANDPACKET, size + 2, data);
+  writeStructuredPacket(packet);
+  if (getStructuredPacket(&packet) != FINGERPRINT_OK)
+    return FINGERPRINT_PACKETRECIEVEERR;
+  if (packet.type != FINGERPRINT_ACKPACKET)
+    return FINGERPRINT_PACKETRECIEVEERR;
+}
+
+// 19H ReadNotepad To read note pad
+uint8_t Adafruit_Fingerprint::readNotepad(uint8_t page, uint8_t *indata, uint8_t size)
+{
+  GET_CMD_PACKET(FINGERPRINT_READ_NOTE, page);
+  memcpy(indata, packet.data + 1, size);
+  return packet.data[0];
 }
